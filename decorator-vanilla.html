@@ -1,0 +1,51 @@
+<script>
+    class MinhaClasse {
+        a = 1
+        b = 5
+
+        metodoA() {
+            console.log('metodoA')
+        }
+
+        metodoB(x, y) {
+            console.log('metodoB', x, y)
+        }
+    }
+
+    const interceptorA = (method, property, args) => {
+        console.log('interceptor A', 'antes')
+        const result = method(...args)
+        console.log('interceptor A', 'depois')
+        return result
+    }
+    const interceptorB = (method, property, args) => {
+        console.log('interceptor B', 'antes')
+        const result = method(...args)
+        console.log('interceptor B', 'depois')
+        return result
+    }
+
+    const decorate = (clazz, handler) => {
+        Object.keys(handler).forEach(property => {
+            const decorators = handler[property]
+            decorators.forEach(decorator => {
+                const method = clazz.prototype[property]
+                
+                clazz.prototype[property] = (...args) => {
+                    return decorator(method.bind(this), property, args)
+                }
+            })
+
+        })
+    }
+
+    decorate(MinhaClasse, {
+        metodoA: [interceptorA, interceptorB],
+        metodoB: [interceptorA]
+    })
+
+    new MinhaClasse().metodoA()
+
+    const minhaClasse = new MinhaClasse()
+    minhaClasse.metodoB()
+</script>
